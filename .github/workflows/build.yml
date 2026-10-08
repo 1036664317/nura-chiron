@@ -73,20 +73,27 @@ jobs:
         env:
           PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
-          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root -y install --password user --no-fde
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root -y install --password user
+
+      - name: Show pmbootstrap log on failure
+        if: failure()
+        run: |
+          sudo tail -n 250 /home/runner/work/pmbootstrap/log.txt || true
 
       - name: Export flashable images
         env:
           PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
-          mkdir -p export
-          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root export export/
-          ls -lh export/
+          mkdir -p export_links export_out
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root export export_links/
+          sudo cp -rL export_links/* export_out/ || true
+          cd export_out
+          sha256sum * > SHA256SUMS.txt 2>/dev/null || true
+          sudo chown -R $USER:$USER .
+          ls -lh
 
       - name: Upload Flashable Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nura-xiaomi-chiron-${{ github.event.inputs.ui || 'phosh' }}
-          path: |
-            export/*.img*
-            export/*.tar.gz
+          path: export_out/
