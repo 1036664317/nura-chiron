@@ -1,0 +1,88 @@
+name: Build Nura for Xiaomi Mi MIX 2 (chiron)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      ui:
+        description: 'User Interface (UI)'
+        required: true
+        default: 'phosh'
+        type: choice
+        options:
+          - phosh
+          - console
+          - plasma-mobile
+          - sxmo-de-sway
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU and binfmt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support
+          sudo systemctl restart systemd-binfmt || true
+          docker run --privileged --rm tonistiigi/binfmt --install all
+
+      - name: Install pmbootstrap
+        run: |
+          sudo apt-get install -y python3-pip git
+          git clone --depth=1 https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git /tmp/pmbootstrap
+          sudo pip install --break-system-packages /tmp/pmbootstrap
+          pmbootstrap --version
+
+      - name: Configure pmbootstrap
+        run: |
+          TARGET_UI="${{ github.event.inputs.ui }}"
+          if [ -z "$TARGET_UI" ]; then
+            TARGET_UI="phosh"
+          fi
+          echo "Selected UI: $TARGET_UI"
+
+          mkdir -p ~/.config
+          cat << EOF > ~/.config/pmbootstrap_v3.cfg
+[pmbootstrap]
+aports = ${{ github.workspace }}
+work = /home/runner/work/pmbootstrap
+auto_zap_misconfigured_chroots = yes
+is_default_channel = True
+device = xiaomi-chiron
+ui = $TARGET_UI
+jobs = 4
+user = user
+systemd = default
+
+[providers]
+
+[mirrors]
+EOF
+          mkdir -p /home/runner/work/pmbootstrap
+          echo "8" > /home/runner/work/pmbootstrap/version
+          sudo pmbootstrap --as-root status
+
+      - name: Build and install image
+        run: |
+          sudo pmbootstrap --as-root -y install --password user --no-fde
+
+      - name: Export flashable images
+        run: |
+          mkdir -p export
+          sudo pmbootstrap --as-root export export/
+          ls -lh export/
+
+      - name: Upload Flashable Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nura-xiaomi-chiron-${{ github.event.inputs.ui || 'phosh' }}
+          path: |
+            export/*.img*
+            export/*.tar.gz

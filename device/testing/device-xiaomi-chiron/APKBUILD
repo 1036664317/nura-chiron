@@ -1,0 +1,55 @@
+# Reference: <https://postmarketos.org/devicepkg>
+maintainer=""
+pkgname=device-xiaomi-chiron
+pkgdesc="Xiaomi Mi MIX 2"
+pkgver=1
+pkgrel=0
+url="https://postmarketos.org"
+license="MIT"
+arch="aarch64"
+options="!check !archcheck"
+depends="
+	mkbootimg
+	postmarketos-base
+	linux-postmarketos-qcom-msm8998
+	soc-qcom
+"
+makedepends="devicepkg-dev"
+source="
+	deviceinfo
+	kernel-cmdline.conf
+	modules-initfs
+	phoc.ini
+"
+subpackages="
+	$pkgname-nonfree-firmware:nonfree_firmware
+	$pkgname-phosh
+"
+
+build() {
+	devicepkg_build $startdir $pkgname
+}
+
+package() {
+	devicepkg_package $startdir $pkgname
+}
+
+nonfree_firmware() {
+	pkgdesc="Firmware for GPU, Wi-Fi, Bluetooth etc. (mainline only, also needed for osk-sdl)"
+	depends="firmware-xiaomi-chiron"
+	mkdir "$subpkgdir"
+}
+
+phosh() {
+	install_if="$pkgname postmarketos-ui-phosh"
+	install -Dm644 "$srcdir"/phoc.ini \
+		"$subpkgdir"/etc/phosh/phoc.ini
+}
+
+sha512sums="
+47633bfbdd87bcd44c6305f832fa2f9a121796056035e4d59d58a24d8aabe7c5db7afb903bab3fef9cbc74024671c543bf4c695fd415cc8e1f9af9ebbede7ff7  deviceinfo
+4610b89b3fea5f4e8baa65cee3871033f344f528cf5ed6825b64d5d113e8b53fbd382ee94e6bdd18ba973aa8e085e054ccd784b68dc995471a6f6ca213fb4c4c  kernel-cmdline.conf
+84ebbf912e24d6c8a96581c911f32ad6722705415ac3a675fd7a00fecf2c4c0d6ea73954288619c21e501fc0cc482ed473117b61add8a2f09fadad45b6399742  modules-initfs
+fa64fbfbac588262c5d394dd7d20fc9b98371d4fb041d12afb89a7c7bacb1bcdce3c91e23322ab2c41bd7aac71e91208acceb54b228e7a9543846dc126a50434  phoc.ini
+"
+

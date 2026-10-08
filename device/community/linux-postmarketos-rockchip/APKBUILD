@@ -1,0 +1,102 @@
+maintainer="Antoine Martin (ayakael) <dev@ayakael.net>"
+pkgname=linux-postmarketos-rockchip
+pkgver=7.0.14
+_kernver=${pkgver%.*}
+pkgrel=0
+pkgdesc="Mainline kernel for rockchip devices"
+arch="aarch64"
+_carch="arm64"
+_flavor="${pkgname#linux-}"
+url="https://kernel.org"
+license="GPL-2.0-only"
+options="!strip !check !tracedeps
+	pmb:cross-native
+	pmb:kconfigcheck-community
+	pmb:kconfigcheck-nftables
+"
+makedepends="
+	bash
+	bison
+	clang
+	elfutils-dev
+	findutils
+	flex
+	kmod
+	linux-headers
+	lld
+	llvm
+	openssl-dev
+	pahole
+	perl
+	postmarketos-installkernel
+	python3
+	xz
+	zstd
+"
+# to allow A/B comparison testing
+replaces="linux-pine64-pinenote"
+provides="linux-pine64-pinenote=$pkgver-r$pkgrel"
+
+# Source
+_config="config-$_flavor.$arch"
+# get patch releases
+if [ "${pkgver/*.}" -ne 0 ]; then
+	source="$pkgname-$pkgver.patch.xz::https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/patch-$pkgver.xz"
+fi
+source="
+	$source
+	https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/linux-$_kernver.tar.xz
+	rk3566-pinenote-support.patch
+	rk3566-pinenote-ultra-suspend.patch
+	$_config
+"
+builddir="$srcdir"/linux-$_kernver
+
+prepare() {
+	default_prepare
+	cp "$srcdir/config-$_flavor.$arch" .config
+}
+
+build() {
+	unset LDFLAGS
+	make ARCH="$_carch" LLVM=1 \
+		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-$_flavor"
+}
+
+package() {
+	mkdir -p "$pkgdir"/boot
+
+	if [ -e "$builddir/arch/$_carch/boot/vmlinuz.efi" ]; then
+		# ZBOOT EFI decompressor for EFI booting
+		install -Dm644 "$builddir/arch/$_carch/boot/vmlinuz.efi" \
+			"$pkgdir/boot/linux.efi"
+
+		# Old GZIP'd kernel image for boot.img/crOS compatibility
+		install -Dm644 "$builddir/arch/$_carch/boot/vmlinuz" \
+			"$pkgdir/boot/vmlinuz"
+	else
+		echo "WARNING: CONFIG_EFI_ZBOOT not enabled!"
+		install -Dm644 "$builddir/arch/$_carch/boot/Image.gz" \
+			"$pkgdir/boot/vmlinuz"
+	fi
+
+	make modules_install dtbs_install \
+		ARCH="$_carch" \
+		LLVM=1 \
+		INSTALL_PATH="$pkgdir"/boot/ \
+		INSTALL_MOD_PATH="$pkgdir"/usr \
+		INSTALL_MOD_STRIP=1 \
+		INSTALL_DTBS_PATH="$pkgdir"/boot/dtbs
+	rm -f "$pkgdir"/lib/modules/*/build "$pkgdir"/lib/modules/*/source
+
+	install -D "$builddir"/include/config/kernel.release \
+		"$pkgdir"/usr/share/kernel/$_flavor/kernel.release
+}
+
+sha512sums="
+7e4d106e62e7ad9cb5e23f439f6ddf4418dbbf37008bc7d1349ab231dac41b857805b6689db25095640cb990ccff2d8e5c8aaa136dd463b345b9d5777ee08e0f  linux-postmarketos-rockchip-7.0.14.patch.xz
+8c85b708342f8f09ca25b2234b22e93b62b144a9ef919fbb21827f52fa47498e778c79db1559524dd7fb360f95b2ce174171443c1859656c281be41d2b6c5a0b  linux-7.0.tar.xz
+a847efc685757cf8250891e06434ee65e449ec1d83d49f3157f2b72528db2da9da11b23b7a1b223645de577414fde15e06fce621bfce5ff02779598ad1d41cf5  rk3566-pinenote-support.patch
+665bdc843912a22bc9f1840bf89195f6cccabd2b8ca3313f3c61b5503c84f98395e3de0d28bc31cbc9f1b4be4a41a483db156fad353506bb5be7abdc22e46501  rk3566-pinenote-ultra-suspend.patch
+b350b844142e94b9f7da65e6e4cf936c2442270f19e6be6bb1f714f005842303965401f91ecc6064484ac09df005b37e4036b57d5d60b2caa6a8d2fda5fdc01a  config-postmarketos-rockchip.aarch64
+"
