@@ -41,42 +41,46 @@ jobs:
           pmbootstrap --version
 
       - name: Configure pmbootstrap
+        env:
+          TARGET_UI: ${{ github.event.inputs.ui || 'phosh' }}
+          PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
-          TARGET_UI="${{ github.event.inputs.ui }}"
-          if [ -z "$TARGET_UI" ]; then
-            TARGET_UI="phosh"
-          fi
           echo "Selected UI: $TARGET_UI"
-
-          mkdir -p ~/.config
-          cat << EOF > ~/.config/pmbootstrap_v3.cfg
-[pmbootstrap]
-aports = ${{ github.workspace }}
-work = /home/runner/work/pmbootstrap
-auto_zap_misconfigured_chroots = yes
-is_default_channel = True
-device = xiaomi-chiron
-ui = $TARGET_UI
-jobs = 4
-user = user
-systemd = default
-
-[providers]
-
-[mirrors]
-EOF
+          python3 -c "
+          import configparser, os
+          cfg = configparser.ConfigParser()
+          cfg['pmbootstrap'] = {
+              'aports': os.environ['GITHUB_WORKSPACE'],
+              'work': '/home/runner/work/pmbootstrap',
+              'auto_zap_misconfigured_chroots': 'yes',
+              'is_default_channel': 'True',
+              'device': 'xiaomi-chiron',
+              'ui': os.environ['TARGET_UI'],
+              'jobs': '4',
+              'user': 'user',
+              'systemd': 'default',
+          }
+          cfg['providers'] = {}
+          cfg['mirrors'] = {}
+          with open('/tmp/pmbootstrap.cfg', 'w') as f:
+              cfg.write(f)
+          "
           mkdir -p /home/runner/work/pmbootstrap
           echo "8" > /home/runner/work/pmbootstrap/version
-          sudo pmbootstrap --as-root status
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root status
 
       - name: Build and install image
+        env:
+          PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
-          sudo pmbootstrap --as-root -y install --password user --no-fde
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root -y install --password user --no-fde
 
       - name: Export flashable images
+        env:
+          PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
           mkdir -p export
-          sudo pmbootstrap --as-root export export/
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root export export/
           ls -lh export/
 
       - name: Upload Flashable Artifacts
