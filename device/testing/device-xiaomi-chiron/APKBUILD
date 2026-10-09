@@ -3,7 +3,7 @@ maintainer=""
 pkgname=device-xiaomi-chiron
 pkgdesc="Xiaomi Mi MIX 2"
 pkgver=1
-pkgrel=1
+pkgrel=2
 url="https://postmarketos.org"
 license="MIT"
 arch="aarch64"
@@ -51,7 +51,7 @@ phosh() {
 sha512sums="
 47633bfbdd87bcd44c6305f832fa2f9a121796056035e4d59d58a24d8aabe7c5db7afb903bab3fef9cbc74024671c543bf4c695fd415cc8e1f9af9ebbede7ff7  deviceinfo
 4610b89b3fea5f4e8baa65cee3871033f344f528cf5ed6825b64d5d113e8b53fbd382ee94e6bdd18ba973aa8e085e054ccd784b68dc995471a6f6ca213fb4c4c  kernel-cmdline.conf
-84ebbf912e24d6c8a96581c911f32ad6722705415ac3a675fd7a00fecf2c4c0d6ea73954288619c21e501fc0cc482ed473117b61add8a2f09fadad45b6399742  modules-initfs
+b465dcb48cd5504c3b63ab2a7f67dce496ff1edfc8a470c458cf80db148be9858d05984ff06bc3d98b6ee70dd653f478deae2e042006ae37d266c0b4337545e9  modules-initfs
 fa64fbfbac588262c5d394dd7d20fc9b98371d4fb041d12afb89a7c7bacb1bcdce3c91e23322ab2c41bd7aac71e91208acceb54b228e7a9543846dc126a50434  phoc.ini
 "
 

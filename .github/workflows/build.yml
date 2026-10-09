@@ -84,6 +84,7 @@ jobs:
         run: |
           sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root build soc-qcom-msm8998
           sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root build firmware-xiaomi-chiron
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root build linux-postmarketos-qcom-msm8998
           sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root build device-xiaomi-chiron
 
       - name: Build and install image

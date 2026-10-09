@@ -70,7 +70,7 @@ index 0000000..c07960b
 +			height = <2160>;
 +			stride = <(1080 * 4)>;
 +			format = "a8r8g8b8";
-+			status = "okay";
++			status = "disabled";
 +		};
 +	};
 +
@@ -353,7 +353,7 @@ index 0000000..c07960b
 +
 +	qcom,max-voltage-uv = <4400000>;
 +	qcom,min-voltage-uv = <3700000>;
-+	qcom,battery-capacity-ua = <3350000>;
++	qcom,battery-capacity-ua = <3400000>;
 +};
 +
 +&pmi8998_lpg {
@@ -619,13 +619,13 @@ index 0000000..c07960b
 +&dsi0 {
 +	#address-cells = <1>;
 +	#size-cells = <0>;
-+	status = "disabled";
++	status = "okay";
 +
 +	vdd-supply = <&vreg_l1a_0p875>;
 +	vdda-supply = <&vreg_l2a_1p2>;
 +
 +	panel: panel@0 {
-+		compatible = "jdi,fhd-r63452";
++		compatible = "jdi,fhd-nt35596s";
 +		reg = <0x0>;
 +
 +		backlight = <&pmi8998_wled>;
