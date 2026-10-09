@@ -3,7 +3,7 @@ maintainer=""
 pkgname=device-xiaomi-chiron
 pkgdesc="Xiaomi Mi MIX 2"
 pkgver=1
-pkgrel=0
+pkgrel=1
 url="https://postmarketos.org"
 license="MIT"
 arch="aarch64"
@@ -13,6 +13,8 @@ depends="
 	postmarketos-base
 	linux-postmarketos-qcom-msm8998
 	soc-qcom
+	soc-qcom-msm8998
+	firmware-xiaomi-chiron
 "
 makedepends="devicepkg-dev"
 source="

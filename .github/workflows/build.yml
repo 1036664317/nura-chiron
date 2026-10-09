@@ -69,6 +69,14 @@ jobs:
           echo "8" > /home/runner/work/pmbootstrap/version
           sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root status
 
+      - name: Pre-build device packages
+        env:
+          PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
+        run: |
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root build soc-qcom-msm8998
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root build firmware-xiaomi-chiron
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root build device-xiaomi-chiron
+
       - name: Build and install image
         env:
           PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
