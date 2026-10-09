@@ -17,6 +17,14 @@ on:
           - console
           - plasma-mobile
           - sxmo-de-sway
+      init:
+        description: 'Init system (OpenRC recommended for MSM8998)'
+        required: true
+        default: 'openrc'
+        type: choice
+        options:
+          - openrc
+          - systemd
 
 jobs:
   build:
@@ -43,9 +51,10 @@ jobs:
       - name: Configure pmbootstrap
         env:
           TARGET_UI: ${{ github.event.inputs.ui || 'phosh' }}
+          TARGET_INIT: ${{ github.event.inputs.init || 'openrc' }}
           PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
-          echo "Selected UI: $TARGET_UI"
+          echo "Selected UI: $TARGET_UI, Init: $TARGET_INIT"
           python3 -c "
           import configparser, os
           cfg = configparser.ConfigParser()
@@ -58,7 +67,7 @@ jobs:
               'ui': os.environ['TARGET_UI'],
               'jobs': '4',
               'user': 'user',
-              'systemd': 'default',
+              'systemd': 'yes' if os.environ.get('TARGET_INIT') == 'systemd' else 'no',
           }
           cfg['providers'] = {}
           cfg['mirrors'] = {}
@@ -67,26 +76,29 @@ jobs:
           "
           mkdir -p /home/runner/work/pmbootstrap
           echo "8" > /home/runner/work/pmbootstrap/version
-          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root status
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root status
 
       - name: Pre-build device packages
         env:
           PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
-          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root build soc-qcom-msm8998
-          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root build firmware-xiaomi-chiron
-          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root build device-xiaomi-chiron
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root build soc-qcom-msm8998
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root build firmware-xiaomi-chiron
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root build device-xiaomi-chiron
 
       - name: Build and install image
         env:
           PMB_CHANNELS_CFG: ${{ github.workspace }}/channels.cfg
         run: |
-          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap -c /tmp/pmbootstrap.cfg --as-root -y install --password user
+          sudo PMB_CHANNELS_CFG="${{ github.workspace }}/channels.cfg" pmbootstrap --details-to-stdout -c /tmp/pmbootstrap.cfg --as-root -y install --password user
 
       - name: Show pmbootstrap log on failure
         if: failure()
         run: |
-          sudo tail -n 250 /home/runner/work/pmbootstrap/log.txt || true
+          echo "=== PMBOOTSTRAP ERRORS IN LOG ==="
+          sudo grep -n -B 3 -A 5 -E "(ERROR:|error:|failed|Failed|exited with)" /home/runner/work/pmbootstrap/log.txt || true
+          echo "=== TAIL OF LOG ==="
+          sudo tail -n 500 /home/runner/work/pmbootstrap/log.txt || true
 
       - name: Export flashable images
         env:
@@ -103,5 +115,5 @@ jobs:
       - name: Upload Flashable Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nura-xiaomi-chiron-${{ github.event.inputs.ui || 'phosh' }}
+          name: nura-xiaomi-chiron-${{ github.event.inputs.ui || 'phosh' }}-${{ github.event.inputs.init || 'openrc' }}
           path: export_out/
