@@ -2,7 +2,7 @@
 maintainer=""
 pkgname=firmware-xiaomi-chiron
 pkgver=1
-pkgrel=1
+pkgrel=2
 _commit="d7e0c59ed28700a8662c6a364d99740c26ebf58a"
 pkgdesc="Firmware for Xiaomi Mi MIX 2"
 url="https://github.com/dsankouski/firmware-mainline-xiaomi-mi6.git"
@@ -26,6 +26,10 @@ package() {
 	while IFS="" read -r fw; do
 		install -Dm644 "$fw" "$pkgdir/lib/firmware/$fw"
 	done < "$srcdir"/firmware.files
+
+	mkdir -p "$pkgdir"/lib/firmware/ath10k/WCN3990/hw1.0
+	ln -sf /lib/firmware/qcom/msm8998/xiaomi/wlanmdsp.mbn \
+		"$pkgdir"/lib/firmware/ath10k/WCN3990/hw1.0/wlanmdsp.mbn
 }
 
 firmware_initramfs() {
@@ -40,6 +44,7 @@ firmware_initramfs() {
 openrc() {
 	install_if="$pkgname=$pkgver-r$pkgrel openrc"
 	install="$subpkgname.post-install"
+	depends="qcom-diag-openrc rmtfs-openrc tqftpserv-openrc openrc"
 
 	mkdir -p "$subpkgdir"
 }

@@ -31,6 +31,8 @@ deviceinfo_append_dtb="true"
 deviceinfo_flash_kernel_on_update="true"
 
 # Initramfs
+deviceinfo_usb_network_function="ncm.usb0"
 
-# Required for devices using UFS as storage (instead of e.g. eMMC)
+# Required for devices using UFS as storage (instead of eMMC)
 deviceinfo_rootfs_image_sector_size="4096"
+

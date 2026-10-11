@@ -1,3 +1,5 @@
 #!/bin/sh
-# The Wi-Fi firmware will keep crashing if diag-router isn't running
+# The Wi-Fi and modem firmware require diag-router, rmtfs, and tqftpserv in boot
 rc-update add diag-router boot
+rc-update add rmtfs boot
+rc-update add tqftpserv boot

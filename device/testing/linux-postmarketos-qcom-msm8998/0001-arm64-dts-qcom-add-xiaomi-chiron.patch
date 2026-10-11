@@ -15,7 +15,7 @@ new file mode 100644
 index 0000000..c07960b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8998-xiaomi-chiron.dts
-@@ -0,0 +1,944 @@
+@@ -0,0 +1,945 @@
 +// SPDX-License-Identifier: BSD-3-Clause
 +/*
 + * Xiaomi Mi MIX 2 (chiron) device tree source based on msm8998-xiaomi-sagit.dts
@@ -724,6 +724,7 @@ index 0000000..c07960b
 +		/delete-node/ opp-670000048;
 +		/delete-node/ opp-596000097;
 +		/delete-node/ opp-515000097;
++		/delete-node/ opp-414000000;
 +	};
 +};
 +
@@ -736,7 +737,7 @@ index 0000000..c07960b
 + *	   until the GPU CPR is brought up.
 + */
 +&pm8005_s1 {
-+	regulator-min-microvolt = <988000>; /* 0,524V -> 0,988V */
++	regulator-min-microvolt = <1050000>; /* 0,524V -> 1,050V to stabilize 257MHz and 342MHz */
 +	//regulator-max-microvolt = <1100000>;
 +};
 +
