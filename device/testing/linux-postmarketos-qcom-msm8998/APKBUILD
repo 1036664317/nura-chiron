@@ -5,7 +5,7 @@ maintainer=""
 _flavor="postmarketos-qcom-msm8998"
 pkgname=linux-$_flavor
 pkgver=6.0
-pkgrel=7
+pkgrel=8
 _commit="90169e6e9fee29fae14aeac0a905246be5ce6304"
 pkgdesc="Mainline Kernel fork for MSM8998 devices"
 arch="aarch64"
@@ -67,7 +67,7 @@ package() {
 sha512sums="
 e1d75369d58f823da5fe0cde17314a4ec2dc9dbab57452b7b8af6b97e91797720162e78f9ca7da2cbb533833b38be86743b8bf0084af1b36b5d23c9207a5248e  linux-90169e6e9fee29fae14aeac0a905246be5ce6304.tar.gz
 cd54e0ab6857329cd329804c6a82daa3bf751c16c46fa781f235db8e2271fda4164d3646b3d2de881d32a081f6028be2ba0b9b067f6c916ac525ef5b585e4a92  config-postmarketos-qcom-msm8998.aarch64
-4a9f99d6ac01e0ee61a89066e7bb69d59d9284ae25176799cfc7e83392b34aab07d1bdeea1d4f084f26c7938fad1bae12ce5974da03ced5380a33c5a8e24fbd0  0001-arm64-dts-qcom-add-xiaomi-chiron.patch
+606fdfd198b2866ac7147c86d51bb97ac0c94c705998a77129ce6b2be54c18abfebaf66ed2896c02f3b8395c5b9f8d6918c4a1b96750eaf0ef4d4d013fdbedc6  0001-arm64-dts-qcom-add-xiaomi-chiron.patch
 69f1c9ee99b71ebb6d5abfa188734ab77e14f2a0b195b4722b0467e0ae9c26e9876b4940b315e2680e0ae73cd8c9a662b4de9b8928cbddd27182a4ec45f37feb  0002-drivers-gpu-drm-panel-add-panel-jdi-fhd-nt35596s.patch
 "
 

@@ -3,7 +3,7 @@ maintainer=""
 pkgname=device-xiaomi-chiron
 pkgdesc="Xiaomi Mi MIX 2"
 pkgver=1
-pkgrel=4
+pkgrel=5
 url="https://postmarketos.org"
 license="MIT"
 arch="aarch64"
@@ -23,6 +23,7 @@ source="
 	modules-initfs
 	modules-load.conf
 	phoc.ini
+	gpu-nobin.sh
 "
 subpackages="
 	$pkgname-nonfree-firmware:nonfree_firmware
@@ -35,6 +36,10 @@ build() {
 
 package() {
 	devicepkg_package $startdir $pkgname
+	install -Dm644 "$srcdir"/gpu-nobin.sh \
+		"$pkgdir"/etc/profile.d/gpu-nobin.sh
+	mkdir -p "$pkgdir"/etc/environment.d
+	echo "FD_MESA_DEBUG=nobin" > "$pkgdir"/etc/environment.d/10-freedreno.conf
 }
 
 nonfree_firmware() {
@@ -55,5 +60,6 @@ d756cea991ed19cfd6c27165fc70a8dde13da322c53e80453886858b1f8cd3d2eac2e185412b4901
 029c67afea882cb8f200c899368c0f0d94993539f1de90edd79fb90e82b23797a9a81c908b83d6733c66954f8c1960cffe05f4f0c9edfaeb30cfc956203711a1  modules-initfs
 3273d896be32857b14e1d929d04ff522b50229088670cec62984c3d46ba921d5755f6b7763a4be8b388e51bd7a8fd0ea48eb0da0b958482a83eaf0d713e57640  modules-load.conf
 fa64fbfbac588262c5d394dd7d20fc9b98371d4fb041d12afb89a7c7bacb1bcdce3c91e23322ab2c41bd7aac71e91208acceb54b228e7a9543846dc126a50434  phoc.ini
+3641010ae448359e60c2f9f1fe0deef76a7d83aac27d57862fdfefc13e4beee90361e1e89b6061af07d0c670c6b0fadba7627eb7ff3881ec5399e379785306cd  gpu-nobin.sh
 "
 

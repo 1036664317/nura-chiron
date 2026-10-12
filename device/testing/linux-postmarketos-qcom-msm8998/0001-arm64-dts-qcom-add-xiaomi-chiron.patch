@@ -217,6 +217,7 @@ index 0000000..c07960b
 +		gpio = <&tlmm 50 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
 +		regulator-boot-on;
++		regulator-always-on;
 +	};
 +};
 +
@@ -375,7 +376,7 @@ index 0000000..c07960b
 +&pmi8998_haptics {
 +	status = "okay";
 +
-+	qcom,wave-play-rate-us = <5000>;
++	qcom,wave-play-rate-us = <4878>;
 +};
 +
 +&qusb2phy {
@@ -636,15 +637,14 @@ index 0000000..c07960b
 +
 +		backlight = <&pmi8998_wled>;
 +		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
-+		disp-te-gpios = <&tlmm 10 GPIO_ACTIVE_LOW>;
 +
 +		ibb-supply = <&ibb>;
 +		lab-supply = <&lab>;
 +		vddio-supply = <&vreg_l14a_1p8>;
 +
 +		pinctrl-names = "default", "sleep";
-+		pinctrl-0 = <&mdss_dsi_active &mdss_te_active>;
-+		pinctrl-1 = <&mdss_dsi_suspend &mdss_te_suspend>;
++		pinctrl-0 = <&mdss_dsi_active>;
++		pinctrl-1 = <&mdss_dsi_suspend>;
 +		port {
 +			panel_in: endpoint {
 +				remote-endpoint = <&dsi0_out>;
@@ -853,7 +853,7 @@ index 0000000..c07960b
 +		bias-disable;
 +	};
 +
-+	cci1_default: cci1-default {
++	cci0_default: cci0-default {
 +		pins = "gpio18", "gpio19";
 +		function = "cci_i2c";
 +		bias-disable;
@@ -861,7 +861,7 @@ index 0000000..c07960b
 +	};
 +
 +	cci1_default: cci1-default {
-+		pins = "gpio19", "gpio20";
++		pins = "gpio20", "gpio21";
 +		function = "cci_i2c";
 +		bias-disable;
 +		drive-strength = <2>;
@@ -915,7 +915,7 @@ index 0000000..c07960b
 +
 +	default-brightness = <800>;
 +	qcom,switching-freq = <800>;
-+	qcom,ovp-millivolt = <29600>;
++	qcom,ovp-millivolt = <19600>;
 +	qcom,current-boost-limit = <970>;
 +	qcom,current-limit-microamp = <25000>;
 +	qcom,num-strings = <4>;
