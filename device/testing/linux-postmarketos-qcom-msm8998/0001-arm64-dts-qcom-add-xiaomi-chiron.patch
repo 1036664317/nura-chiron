@@ -15,7 +15,7 @@ new file mode 100644
 index 0000000..c07960b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8998-xiaomi-chiron.dts
-@@ -0,0 +1,950 @@
+@@ -0,0 +1,955 @@
 +// SPDX-License-Identifier: BSD-3-Clause
 +/*
 + * Xiaomi Mi MIX 2 (chiron) device tree source based on msm8998-xiaomi-sagit.dts
@@ -324,10 +324,11 @@ index 0000000..c07960b
 +&pm8005_regulators {
 +	/* VDD_GFX supply */
 +	pm8005_s1: s1 {
-+		regulator-min-microvolt = <524000>;
-+		regulator-max-microvolt = <1100000>;
++		regulator-min-microvolt = <1050000>;
++		regulator-max-microvolt = <1050000>;
 +		regulator-enable-ramp-delay = <500>;
-+		/* Hack until we rig up the gpu consumer */
++		regulator-apply-uv;
++		regulator-boot-on;
 +		regulator-always-on;
 +	};
 +};
@@ -594,7 +595,7 @@ index 0000000..c07960b
 +};
 +
 +&remoteproc_mss {
-+	status = "okay";
++	status = "disabled";
 +
 +	firmware-name = "qcom/msm8998/xiaomi/mba.mbn", "qcom/msm8998/xiaomi/modem.mbn";
 +};
@@ -730,6 +731,7 @@ index 0000000..c07960b
 +		/delete-node/ opp-596000097;
 +		/delete-node/ opp-515000097;
 +		/delete-node/ opp-414000000;
++		/delete-node/ opp-342000000;
 +	};
 +};
 +
@@ -738,12 +740,15 @@ index 0000000..c07960b
 +};
 +
 +/*
-+ * HACK: Shoot GPU voltage high to stabilize Adreno 540 at high frequencies
++ * HACK: Shoot GPU voltage high to stabilize Adreno 540 at 257MHz
 + *	   until the GPU CPR is brought up.
 + */
 +&pm8005_s1 {
-+	regulator-min-microvolt = <1050000>; /* 0,524V -> 1,050V to stabilize 257MHz and 342MHz */
-+	//regulator-max-microvolt = <1100000>;
++	regulator-min-microvolt = <1050000>;
++	regulator-max-microvolt = <1050000>;
++	regulator-apply-uv;
++	regulator-boot-on;
++	regulator-always-on;
 +};
 +
 +&tlmm {
