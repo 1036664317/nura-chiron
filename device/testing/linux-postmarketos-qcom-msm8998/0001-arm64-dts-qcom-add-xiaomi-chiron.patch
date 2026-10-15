@@ -596,7 +596,7 @@ index 0000000..c07960b
 +};
 +
 +&remoteproc_mss {
-+	status = "disabled";
++	status = "okay";
 +
 +	firmware-name = "qcom/msm8998/xiaomi/mba.mbn", "qcom/msm8998/xiaomi/modem.mbn";
 +};
