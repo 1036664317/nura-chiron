@@ -4,15 +4,15 @@ maintainer=""
 _flavor="postmarketos-qcom-msm8998"
 pkgname=linux-$_flavor
 pkgver=6.0
-pkgrel=13
+pkgrel=14
 _commit="90169e6e9fee29fae14aeac0a905246be5ce6304"
 pkgdesc="Mainline Kernel fork for MSM8998 devices"
 arch="aarch64"
 _carch="arm64"
-url="https://github.com/msm8998-mainline/linux"
+_config="config-$_flavor.$arch"
+url="https://gitlab.com/msm8998-mainline/linux"
 license="GPL-2.0-only"
 options="!strip !check !tracedeps
-	pmb:kconfigcheck-community
 	pmb:cross-native
 "
 makedepends="
@@ -20,15 +20,17 @@ makedepends="
 	bison
 	findutils
 	flex
+	linux-headers
 	openssl-dev
 	perl
 	postmarketos-installkernel
+	xz
 "
 
 # Source
 source="
-	linux-$_commit.tar.gz::https://gitlab.com/msm8998-mainline/linux/-/archive/$_commit/linux-$_commit.tar.gz
-	config-$_flavor.$arch
+	https://gitlab.com/msm8998-mainline/linux/-/archive/$_commit/linux-$_commit.tar.gz
+	$_config
 	0001-arm64-dts-qcom-add-xiaomi-chiron.patch
 	0002-drivers-gpu-drm-panel-add-panel-jdi-fhd-nt35596s.patch
 "
@@ -41,23 +43,24 @@ prepare() {
 
 build() {
 	unset LDFLAGS
+	# V=1: workaround for pma#1990, remove after upgrading to >= 6.2
 	make ARCH="$_carch" CC="${CC:-gcc}" \
-		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
+		KBUILD_BUILD_VERSION="$((pkgrel + 1))-$_flavor" V=1
 }
 
 package() {
 	mkdir -p "$pkgdir"/boot
 
-	install -Dm644 "$builddir/arch/$_carch/boot/vmlinuz.efi" \
-		"$pkgdir/boot/vmlinuz"
-
-	make ARCH="$_carch" CC="${CC:-gcc}" \
-		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS" \
-		INSTALL_PATH="$pkgdir"/boot/ \
+	make zinstall modules_install dtbs_install \
+		ARCH="$_carch" \
+		INSTALL_PATH="$pkgdir"/boot \
 		INSTALL_MOD_PATH="$pkgdir" \
 		INSTALL_MOD_STRIP=1 \
-		INSTALL_DTBS_PATH="$pkgdir"/boot/dtbs \
-		modules_install dtbs_install
+		INSTALL_DTBS_PATH="$pkgdir"/boot/dtbs
+	rm -f "$pkgdir"/lib/modules/*/build "$pkgdir"/lib/modules/*/source
+
+	install -D "$builddir"/include/config/kernel.release \
+		"$pkgdir"/usr/share/kernel/$_flavor/kernel.release
 }
 
 sha512sums="
