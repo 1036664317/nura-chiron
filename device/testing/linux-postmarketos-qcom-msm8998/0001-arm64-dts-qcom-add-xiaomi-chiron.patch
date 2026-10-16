@@ -15,7 +15,7 @@ new file mode 100644
 index 0000000..c07960b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8998-xiaomi-chiron.dts
-@@ -0,0 +1,955 @@
+@@ -0,0 +1,950 @@
 +// SPDX-License-Identifier: BSD-3-Clause
 +/*
 + * Xiaomi Mi MIX 2 (chiron) device tree source based on msm8998-xiaomi-sagit.dts
@@ -217,7 +217,6 @@ index 0000000..c07960b
 +		gpio = <&tlmm 50 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
 +		regulator-boot-on;
-+		regulator-always-on;
 +	};
 +};
 +
@@ -325,11 +324,10 @@ index 0000000..c07960b
 +&pm8005_regulators {
 +	/* VDD_GFX supply */
 +	pm8005_s1: s1 {
-+		regulator-min-microvolt = <1050000>;
-+		regulator-max-microvolt = <1050000>;
++		regulator-min-microvolt = <524000>;
++		regulator-max-microvolt = <1100000>;
 +		regulator-enable-ramp-delay = <500>;
-+		regulator-apply-uv;
-+		regulator-boot-on;
++		/* Hack until we rig up the gpu consumer */
 +		regulator-always-on;
 +	};
 +};
@@ -637,14 +635,15 @@ index 0000000..c07960b
 +
 +		backlight = <&pmi8998_wled>;
 +		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
++		disp-te-gpios = <&tlmm 10 GPIO_ACTIVE_LOW>;
 +
 +		ibb-supply = <&ibb>;
 +		lab-supply = <&lab>;
 +		vddio-supply = <&vreg_l14a_1p8>;
 +
 +		pinctrl-names = "default", "sleep";
-+		pinctrl-0 = <&mdss_dsi_active>;
-+		pinctrl-1 = <&mdss_dsi_suspend>;
++		pinctrl-0 = <&mdss_dsi_active &mdss_te_active>;
++		pinctrl-1 = <&mdss_dsi_suspend &mdss_te_suspend>;
 +		port {
 +			panel_in: endpoint {
 +				remote-endpoint = <&dsi0_out>;
@@ -731,7 +730,6 @@ index 0000000..c07960b
 +		/delete-node/ opp-596000097;
 +		/delete-node/ opp-515000097;
 +		/delete-node/ opp-414000000;
-+		/delete-node/ opp-342000000;
 +	};
 +};
 +
@@ -740,15 +738,12 @@ index 0000000..c07960b
 +};
 +
 +/*
-+ * HACK: Shoot GPU voltage high to stabilize Adreno 540 at 257MHz
++ * HACK: Shoot GPU voltage high to stabilize Adreno 540 at high frequencies
 + *	   until the GPU CPR is brought up.
 + */
 +&pm8005_s1 {
-+	regulator-min-microvolt = <1050000>;
-+	regulator-max-microvolt = <1050000>;
-+	regulator-apply-uv;
-+	regulator-boot-on;
-+	regulator-always-on;
++	regulator-min-microvolt = <1050000>; /* 0,524V -> 1,050V to stabilize 257MHz and 342MHz */
++	//regulator-max-microvolt = <1100000>;
 +};
 +
 +&tlmm {
@@ -915,7 +910,7 @@ index 0000000..c07960b
 +
 +	default-brightness = <800>;
 +	qcom,switching-freq = <800>;
-+	qcom,ovp-millivolt = <19600>;
++	qcom,ovp-millivolt = <29600>;
 +	qcom,current-boost-limit = <970>;
 +	qcom,current-limit-microamp = <25000>;
 +	qcom,num-strings = <4>;
