@@ -15,7 +15,7 @@ new file mode 100644
 index 0000000..c07960b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8998-xiaomi-chiron.dts
-@@ -0,0 +1,950 @@
+@@ -0,0 +1,952 @@
 +// SPDX-License-Identifier: BSD-3-Clause
 +/*
 + * Xiaomi Mi MIX 2 (chiron) device tree source based on msm8998-xiaomi-sagit.dts
@@ -500,6 +500,8 @@ index 0000000..c07960b
 +		vreg_l14a_1p8: l14 {
 +			regulator-min-microvolt = <1800000>;
 +			regulator-max-microvolt = <1800000>;
++			regulator-boot-on;
++			regulator-always-on;
 +		};
 +
 +		vreg_l15a_1p8: l15 {
