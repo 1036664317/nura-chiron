@@ -1,19 +1,18 @@
-# Archived: unmaintained
-# Stable Linux kernel with patches for MSM8998 devices
-# Kernel config based on: msm8998_defconfig
+# Reference: <https://postmarketos.org/vendorkernel>
+# Kernel config based on: arch/arm64/configs/defconfig
 maintainer=""
 _flavor="postmarketos-qcom-msm8998"
 pkgname=linux-$_flavor
 pkgver=6.0
-pkgrel=12
+pkgrel=13
 _commit="90169e6e9fee29fae14aeac0a905246be5ce6304"
 pkgdesc="Mainline Kernel fork for MSM8998 devices"
 arch="aarch64"
 _carch="arm64"
-_config="config-$_flavor.$arch"
-url="https://gitlab.com/msm8998-mainline/linux"
+url="https://github.com/msm8998-mainline/linux"
 license="GPL-2.0-only"
 options="!strip !check !tracedeps
+	pmb:kconfigcheck-community
 	pmb:cross-native
 "
 makedepends="
@@ -21,17 +20,15 @@ makedepends="
 	bison
 	findutils
 	flex
-	linux-headers
 	openssl-dev
 	perl
 	postmarketos-installkernel
-	xz
 "
 
 # Source
 source="
-	https://gitlab.com/msm8998-mainline/linux/-/archive/$_commit/linux-$_commit.tar.gz
-	$_config
+	linux-$_commit.tar.gz::https://gitlab.com/msm8998-mainline/linux/-/archive/$_commit/linux-$_commit.tar.gz
+	config-$_flavor.$arch
 	0001-arm64-dts-qcom-add-xiaomi-chiron.patch
 	0002-drivers-gpu-drm-panel-add-panel-jdi-fhd-nt35596s.patch
 "
@@ -44,31 +41,28 @@ prepare() {
 
 build() {
 	unset LDFLAGS
-	# V=1: workaround for pma#1990, remove after upgrading to >= 6.2
 	make ARCH="$_carch" CC="${CC:-gcc}" \
-		KBUILD_BUILD_VERSION="$((pkgrel + 1))-$_flavor" V=1
+		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
 }
 
 package() {
 	mkdir -p "$pkgdir"/boot
 
-	make zinstall modules_install dtbs_install \
-		ARCH="$_carch" \
-		INSTALL_PATH="$pkgdir"/boot \
+	install -Dm644 "$builddir/arch/$_carch/boot/vmlinuz.efi" \
+		"$pkgdir/boot/vmlinuz"
+
+	make ARCH="$_carch" CC="${CC:-gcc}" \
+		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS" \
+		INSTALL_PATH="$pkgdir"/boot/ \
 		INSTALL_MOD_PATH="$pkgdir" \
 		INSTALL_MOD_STRIP=1 \
-		INSTALL_DTBS_PATH="$pkgdir"/boot/dtbs
-	rm -f "$pkgdir"/lib/modules/*/build "$pkgdir"/lib/modules/*/source
-
-	install -D "$builddir"/include/config/kernel.release \
-		"$pkgdir"/usr/share/kernel/$_flavor/kernel.release
+		INSTALL_DTBS_PATH="$pkgdir"/boot/dtbs \
+		modules_install dtbs_install
 }
 
 sha512sums="
 e1d75369d58f823da5fe0cde17314a4ec2dc9dbab57452b7b8af6b97e91797720162e78f9ca7da2cbb533833b38be86743b8bf0084af1b36b5d23c9207a5248e  linux-90169e6e9fee29fae14aeac0a905246be5ce6304.tar.gz
-cd54e0ab6857329cd329804c6a82daa3bf751c16c46fa781f235db8e2271fda4164d3646b3d2de881d32a081f6028be2ba0b9b067f6c916ac525ef5b585e4a92  config-postmarketos-qcom-msm8998.aarch64
-23de5138736aa8743290b11c67e19ef33da7b1c294fc23297a3a5cf150fc0296808511b1028fa79d9019d69569ba142fb7ba238011d8e01b25eb627ad3211727  0001-arm64-dts-qcom-add-xiaomi-chiron.patch
+bf880cf617bd5fa51577951ee93e8ba70b907a4cbf63d7a75c15ef8eef8069588182e4eba2844e9428a016a0935b7832d64468121b94f5b152131132cb7e4681  config-postmarketos-qcom-msm8998.aarch64
+42baae9e3079f7951f251002316c10611b6e5ce162c76f26dd87485013f0a9b7b5f7976e2a1e028de8af1d54f20aee134c38fd983f58ac17af554e7065323733  0001-arm64-dts-qcom-add-xiaomi-chiron.patch
 69f1c9ee99b71ebb6d5abfa188734ab77e14f2a0b195b4722b0467e0ae9c26e9876b4940b315e2680e0ae73cd8c9a662b4de9b8928cbddd27182a4ec45f37feb  0002-drivers-gpu-drm-panel-add-panel-jdi-fhd-nt35596s.patch
 "
-
-

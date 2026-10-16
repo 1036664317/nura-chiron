@@ -15,7 +15,7 @@ new file mode 100644
 index 0000000..c07960b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8998-xiaomi-chiron.dts
-@@ -0,0 +1,952 @@
+@@ -0,0 +1,944 @@
 +// SPDX-License-Identifier: BSD-3-Clause
 +/*
 + * Xiaomi Mi MIX 2 (chiron) device tree source based on msm8998-xiaomi-sagit.dts
@@ -351,11 +351,6 @@ index 0000000..c07960b
 +&pmi8998_fg {
 +	status = "okay";
 +
-+	reg = <0x4000>, <0x1000>;
-+	interrupts = <0x2 0x40 0x3 IRQ_TYPE_EDGE_RISING>,
-+		     <0x2 0x13 0x4 IRQ_TYPE_EDGE_BOTH>;
-+	interrupt-names = "soc-delta", "usb-plugin";
-+
 +	qcom,max-voltage-uv = <4400000>;
 +	qcom,min-voltage-uv = <3700000>;
 +	qcom,battery-capacity-ua = <3400000>;
@@ -374,7 +369,7 @@ index 0000000..c07960b
 +&pmi8998_haptics {
 +	status = "okay";
 +
-+	qcom,wave-play-rate-us = <4878>;
++	qcom,wave-play-rate-us = <5000>;
 +};
 +
 +&qusb2phy {
@@ -500,8 +495,6 @@ index 0000000..c07960b
 +		vreg_l14a_1p8: l14 {
 +			regulator-min-microvolt = <1800000>;
 +			regulator-max-microvolt = <1800000>;
-+			regulator-boot-on;
-+			regulator-always-on;
 +		};
 +
 +		vreg_l15a_1p8: l15 {
@@ -731,7 +724,6 @@ index 0000000..c07960b
 +		/delete-node/ opp-670000048;
 +		/delete-node/ opp-596000097;
 +		/delete-node/ opp-515000097;
-+		/delete-node/ opp-414000000;
 +	};
 +};
 +
@@ -744,7 +736,7 @@ index 0000000..c07960b
 + *	   until the GPU CPR is brought up.
 + */
 +&pm8005_s1 {
-+	regulator-min-microvolt = <1050000>; /* 0,524V -> 1,050V to stabilize 257MHz and 342MHz */
++	regulator-min-microvolt = <988000>; /* 0,524V -> 0,988V */
 +	//regulator-max-microvolt = <1100000>;
 +};
 +
@@ -850,7 +842,7 @@ index 0000000..c07960b
 +		bias-disable;
 +	};
 +
-+	cci0_default: cci0-default {
++	cci1_default: cci1-default {
 +		pins = "gpio18", "gpio19";
 +		function = "cci_i2c";
 +		bias-disable;
@@ -858,7 +850,7 @@ index 0000000..c07960b
 +	};
 +
 +	cci1_default: cci1-default {
-+		pins = "gpio20", "gpio21";
++		pins = "gpio19", "gpio20";
 +		function = "cci_i2c";
 +		bias-disable;
 +		drive-strength = <2>;

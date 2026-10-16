@@ -1,17 +1,18 @@
 # Reference: <https://postmarketos.org>
 maintainer=""
 pkgname=firmware-xiaomi-chiron
-pkgver=1.0
-pkgrel=1
-pkgdesc="Firmware for Xiaomi Mi MIX 2 (chiron)"
-url="https://postmarketos.org"
+pkgver=1
+pkgrel=3
+_commit="d7e0c59ed28700a8662c6a364d99740c26ebf58a"
+pkgdesc="Firmware for Xiaomi Mi MIX 2"
+url="https://github.com/dsankouski/firmware-mainline-xiaomi-mi6.git"
 replaces="linux-firmware-ath10k"
 arch="aarch64"
 depends="firmware-qcom-adreno-a530 linux-firmware-qca soc-qcom-msm8998-nonfree-firmware"
 license="proprietary"
 options="!check !archcheck !strip !tracedeps"
 source="
-	$pkgname-$pkgver.tar.xz
+	$pkgname-$_commit.tar.gz::https://github.com/dsankouski/firmware-mainline-xiaomi-mi6/archive/$_commit.tar.gz
 	30-gpu-firmware.files
 	firmware.files
 "
@@ -19,16 +20,12 @@ subpackages="
 	$pkgname-initramfs:firmware_initramfs
 	$pkgname-openrc
 	"
-builddir="$srcdir/$pkgname-$pkgver"
+builddir="$srcdir/firmware-mainline-xiaomi-mi6-$_commit"
 
 package() {
 	while IFS="" read -r fw; do
 		install -Dm644 "$fw" "$pkgdir/lib/firmware/$fw"
 	done < "$srcdir"/firmware.files
-
-	mkdir -p "$pkgdir"/lib/firmware/ath10k/WCN3990/hw1.0
-	ln -sf /lib/firmware/qcom/msm8998/xiaomi/wlanmdsp.mbn \
-		"$pkgdir"/lib/firmware/ath10k/WCN3990/hw1.0/wlanmdsp.mbn
 }
 
 firmware_initramfs() {
@@ -43,13 +40,12 @@ firmware_initramfs() {
 openrc() {
 	install_if="$pkgname=$pkgver-r$pkgrel openrc"
 	install="$subpkgname.post-install"
-	depends="qcom-diag-openrc rmtfs-openrc tqftpserv-openrc openrc"
 
 	mkdir -p "$subpkgdir"
 }
 
 sha512sums="
-486eff67a032eab614dd415fd33117d3dd7c0806fa6ca1b4dc8007f9dab698746579f1af4d70cbb0c095200ad076e507b7c94dbc449638fd19640af0174e9e64  firmware-xiaomi-chiron-1.0.tar.xz
+a6576fd2d3849c139809d9cfe8987e16790f36443bb6f6c3427d883c6f9fc3ab5a5500d6d323a30b5d430bfa2aabcedb16ed9a99a6c609d07bce992ca52f1e64  firmware-xiaomi-chiron-d7e0c59ed28700a8662c6a364d99740c26ebf58a.tar.gz
 ede0bdec767249ac2f252fb6da7ad8b0c7a44f73c4482211f105ca5e08686598051e09b467bcf0641793d3ea3bcc64386ab628dac87227dc48e6054cc7ca558f  30-gpu-firmware.files
-8dd706bbc2b29e390d29b920e4fb9328c1de5a585307be0c00f4388a416023e313a543e88edc6682947fcf66b8aea3d02649a64b5f7ed53330b74c91026dd7d1  firmware.files
+55418aeb509328bed592c09a9798f3f5a6bd69c833ebf4f0f611d5afcaf1bf424c3be2016bf34638f55b5978c7e7fb50759b39db69bc887c7dce79efa7920707  firmware.files
 "

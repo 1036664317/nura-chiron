@@ -4,5 +4,5 @@ panel-jdi-fhd-nt35596s
 msm
 i2c-qup
 rmi_i2c
-qcom_fg
+qcom_spmi_fg
 qcom_spmi_haptics
